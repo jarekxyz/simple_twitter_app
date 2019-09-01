@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
                                         PermissionsMixin
+from django.utils import timezone
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -35,3 +37,27 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+
+class Tag(models.Model):
+    """Tag object"""
+    text = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.text
+
+
+class Tweet(models.Model):
+    """Tweet object"""
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+    date_created = models.DateTimeField(default=timezone.now)
+    text = models.CharField(max_length=255)
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self):
+        return "{0}, {1}\n{2}\n".format(self.author,
+                                        self.date_created,
+                                        self.text)

@@ -1,5 +1,13 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+
+from core import models
+
+
+def sample_user(email='test@example.com', password="P@ssword123"):
+    """Create a sample user"""
+    return get_user_model().objects.create_user(email, password)
 
 
 class ModelTests(TestCase):
@@ -37,3 +45,29 @@ class ModelTests(TestCase):
 
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_tag_str(self):
+        """Test the tag string representation"""
+        tag = models.Tag.objects.create(
+            text="Test tag"
+        )
+
+        self.assertEqual(str(tag), tag.text)
+
+    def test_tweet_str(self):
+        """Test the tweet string representation"""
+        author = sample_user()
+        date_created = timezone.now()
+        text = "Test tweet content"
+
+        tweet = models.Tweet.objects.create(
+            author=author,
+            date_created=date_created,
+            text=text
+        )
+
+        tweet_str = "{0}, {1}\n{2}\n".format(author,
+                                             date_created,
+                                             text)
+
+        self.assertEqual(str(tweet), tweet_str)
