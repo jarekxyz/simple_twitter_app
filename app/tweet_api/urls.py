@@ -11,4 +11,5 @@ app_name = 'tweet_api'
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('count/', views.tweet_count_view, name='count'),
 ]
