@@ -39,14 +39,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
 
-class Tag(models.Model):
-    """Tag object"""
-    text = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.text
-
-
 class Tweet(models.Model):
     """Tweet object"""
     author = models.ForeignKey(
@@ -55,9 +47,10 @@ class Tweet(models.Model):
     )
     date_created = models.DateTimeField(default=timezone.now)
     text = models.CharField(max_length=255)
-    tags = models.ManyToManyField('Tag')
+    tag = models.CharField(max_length=50)
 
     def __str__(self):
-        return "{0}, {1}\n{2}\n".format(self.author,
-                                        self.date_created,
-                                        self.text)
+        return "{0}, {1}\n{2}\n{3}\n".format(self.author,
+                                             self.date_created,
+                                             self.text,
+                                             self.tag)

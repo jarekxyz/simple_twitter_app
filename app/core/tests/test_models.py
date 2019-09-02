@@ -46,28 +46,23 @@ class ModelTests(TestCase):
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
 
-    def test_tag_str(self):
-        """Test the tag string representation"""
-        tag = models.Tag.objects.create(
-            text="Test tag"
-        )
-
-        self.assertEqual(str(tag), tag.text)
-
     def test_tweet_str(self):
         """Test the tweet string representation"""
         author = sample_user()
         date_created = timezone.now()
         text = "Test tweet content"
+        tag = "Tag1"
 
         tweet = models.Tweet.objects.create(
             author=author,
             date_created=date_created,
-            text=text
+            text=text,
+            tag=tag
         )
 
-        tweet_str = "{0}, {1}\n{2}\n".format(author,
-                                             date_created,
-                                             text)
+        tweet_str = "{0}, {1}\n{2}\n{3}\n".format(author,
+                                                  date_created,
+                                                  text,
+                                                  tag)
 
         self.assertEqual(str(tweet), tweet_str)
