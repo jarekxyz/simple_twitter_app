@@ -1,9 +1,10 @@
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, \
+                                       permission_classes
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 
 from core.models import Tweet
 
@@ -11,23 +12,25 @@ from tweet_api import serializers
 
 
 @api_view()
+@authentication_classes((TokenAuthentication,))
+@permission_classes((IsAuthenticated,))
 def tweet_count_view(request):
-    """Retrieve per year tweet count for given time frame and tag"""
-    start = int(request.query_params.get('from'))
-    end = int(request.query_params.get('till'))
+    """Retrieve tweet count per year for given time frame and tag"""
+    start = int(request.query_params.get('from', default=0))
+    end = int(request.query_params.get('till', default=0))
     tag = request.query_params.get('tag', default=0)
     if start and end:
-        queryset = Tweet.objects.all().filter(
-            date_created__year__gte=str(start),
-            date_created__year__lte=str(end))
-        count = dict()
-        for i in range(start, end + 1):
-            if tag:
-                count[i] = queryset.filter(date_created__year=i,
-                                           tag=str(tag)).count()
-            else:
-                count[i] = queryset.filter(date_created__year=i).count()
+        kwargs = {'date_created__year__gte': str(start),
+                  'date_created__year__lte': str(end)}
+        if tag:
+            kwargs['tag'] = tag
+        queryset = Tweet.objects.all().filter(**kwargs)
+        count = {key: 0 for key in range(start, end + 1)}
+        for object in queryset:
+            count[object.date_created.year] += 1
         return JsonResponse(count)
+    else:
+        return HttpResponseBadRequest("Incorrect or missing parameters")
 
 
 class CreateTweetView(viewsets.ModelViewSet):
