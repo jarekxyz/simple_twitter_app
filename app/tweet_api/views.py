@@ -43,7 +43,7 @@ class CreateTweetView(viewsets.ModelViewSet):
 
 class RetrieveTweetView(viewsets.ModelViewSet):
     """Retrieve tweets with given tag"""
-    # serializer_class = serializers.BaseSerializer
+    serializer_class = serializers.RetrieveTweetSerializer
     queryset = Tweet.objects.all().order_by('-date_created')
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
